@@ -1,162 +1,57 @@
-# Chiến dịch Tái thiết Portal TechBugs
+Chiến dịch Tái thiết Portal TechBugs
+Repository: https://github.com/dieppham999/portal_techbugs
 
-> Bài thực hành Git Branching & Merging và HTML Semantic.
+Bài thực hành mô tả hai nhánh tính năng độc lập, hợp nhất bằng Git merge và nâng cấp cấu trúc HTML theo ngữ nghĩa. Các đường dẫn commit dưới đây là bằng chứng có thật được đối chiếu trên GitHub ngày 12/11/2026, không phải sơ đồ dự kiến.
+1. Bằng chứng lịch sử Git
+Sự kiện	Commit	Kiểm chứng
+Commit gốc chứa Legacy Code	128e2461d	Xem commit
+Nhánh feature/nav-bar: menu	284c351c1	Xem commit
+Nhánh feature/semantic-content: nội dung	1668177e8	Xem commit
+Merge menu vào main (2 parents)	ca35ea9a5	Xem merge commit
+Merge nội dung vào main (2 parents)	7e493c2e1	Xem merge commit
+Sửa lỗi phát sinh sau merge	7f371d1a6	Xem commit
 
-## 1. Mục tiêu
 
-- Làm việc trên hai nhánh tính năng độc lập thay vì chỉnh sửa trực tiếp toàn bộ trên `main`.
-- Chuyển cấu trúc HTML cũ sử dụng nhiều `<div>` sang các thẻ ngữ nghĩa phù hợp.
-- Tạo menu điều hướng theo cấu trúc `<nav>` → `<ul>` → `<li>` → `<a>`.
-- Hợp nhất hai nhánh vào `main`, kiểm tra HTML và lịch sử Git.
+Branches: feature/nav-bar · feature/semantic-content · main
 
-## 2. Thông tin dự án
+Quan hệ nhánh đã được xác minh: hai commit 284c351c1 và 1668177e8 đều có parent là 128e2461d. Merge ca35ea9a5 có parents 128e2461d và 284c351c1; merge 7e493c2e1 có parents ca35ea9a5 và 1668177e8.
 
-- **Tên dự án:** TechBugs Portal
-- **Ngôn ngữ:** HTML (và CSS nếu cần giữ giao diện)
-- **Repository GitHub:** `https://github.com/<username>/<repository>` *(thay bằng link thật khi nộp)*
-- **Nhánh chính:** `main`
-- **Nhánh menu:** `feature/nav-bar`
-- **Nhánh nội dung:** `feature/semantic-content`
-
-## 3. Phân tích cấu trúc HTML
-
-| Khối Legacy | Cấu trúc đề xuất | Ý nghĩa |
-|---|---|---|
-| `.top-bar` | `<header>` | Phần đầu trang |
-| `.menu` | `<nav>` chứa `<ul>` → `<li>` → `<a>` | Khu vực điều hướng |
-| `.main-content` | `<main>` | Nội dung chính của trang |
-| Nhóm tin theo chủ đề | `<section>` (khi phù hợp) | Nhóm nội dung có chủ đề/tiêu đề |
-| `.news-block` | `<article>` (nếu là một tin độc lập) | Bài viết/tin có thể đứng riêng |
-| `.bottom-bar` | `<footer>` | Phần cuối trang |
-
-**Lưu ý:** Không thay thế mọi `<div>` một cách máy móc. Chỉ dùng thẻ semantic khi phù hợp với ý nghĩa nội dung. Để xác định chính xác từng vị trí, cần đối chiếu với toàn bộ mã HTML gốc do giảng viên cung cấp.
-
-## 4. Quy trình thực hiện
-
-### Bước 1: Tạo commit gốc trên `main`
-
-Tạo thư mục dự án, đặt mã **Legacy Code** được cung cấp trong bài học vào `index.html`, sau đó chạy:
-
-```bash
-git init
-git branch -M main
-git add index.html
-git commit -m "chore: add legacy portal"
-```
-
-Commit này là điểm xuất phát chung cho hai nhánh tính năng.
-
-### Bước 2: Phát triển menu trên nhánh `feature/nav-bar`
-
-```bash
-git switch main
-git switch -c feature/nav-bar
-```
-
-Chỉnh sửa **riêng khối menu** trong `index.html` bằng các thẻ `<nav>`, `<ul>`, `<li>`, `<a>`; kiểm tra các liên kết điều hướng, sau đó:
-
-```bash
-git add index.html
-git commit -m "feat: rebuild navigation with semantic list"
-```
-
-### Bước 3: Phát triển nội dung trên nhánh `feature/semantic-content`
-
-Quay về **commit gốc trên `main`** trước khi rẽ nhánh để hai tính năng độc lập:
-
-```bash
-git switch main
-git switch -c feature/semantic-content
-```
-
-Chỉnh sửa phần đầu trang, nội dung chính, các nhóm tin và chân trang; **không đưa thay đổi menu từ nhánh kia vào nhánh này**. Sau đó:
-
-```bash
-git add index.html
-git commit -m "feat: introduce semantic page structure"
-```
-
-### Bước 4: Merge hai tính năng vào `main`
-
-```bash
-git switch main
-git merge --no-ff feature/nav-bar
-git merge --no-ff feature/semantic-content
-```
-
-Tùy cách hai nhánh sửa `index.html`, merge thứ hai có thể xảy ra conflict. Khi đó:
-
-1. Chạy `git status` để xem file bị xung đột.
-2. Mở `index.html`, tìm các dấu `<<<<<<<`, `=======`, `>>>>>>>`.
-3. Chỉnh sửa thủ công để **giữ cả menu mới và nội dung semantic**, đồng thời loại bỏ dấu conflict.
-4. Chạy `git add index.html` và `git commit` để hoàn tất merge.
-
-Không nên chạy bước commit giải quyết conflict nếu không có conflict thực tế.
-
-### Bước 5: Kiểm tra lịch sử và kết quả
-
-```bash
+Lưu ý: Đồ thị ở trên là minh họa rút gọn. Để tạo ảnh bằng chứng đúng định dạng và đúng thứ tự, chạy lệnh sau trong bản clone của repository, sau đó chụp màn hình terminal:
+git fetch --all --prune
+git log --all --oneline --graph --decorate
 git branch -a
-git status
-git log --oneline --graph --all --decorate
-```
+Xem thêm GitHub network graph.
+2. Chuyển đổi HTML semantic
+Legacy HTML	Phần tử thay thế	Lý do
+.top-bar	<header>	Phần đầu trang
+.menu	<nav><ul><li><a>	Điều hướng chính và danh sách liên kết
+.main-content	<main>	Nội dung chính duy nhất
+Nhóm tin có tiêu đề	<section>	Nhóm nội dung liên quan
+.news-block	<article>	Tin có thể đứng độc lập
+.title	<h3>	Heading đúng cấp trong nhóm tin
+.author, .text	<p>, <time>	Nội dung dạng đoạn và ngày máy đọc được
+.bottom-bar	<footer>	Thông tin cuối trang
 
-Kiểm tra `index.html` trên `main` để xác nhận cả hai phần đã được tích hợp; mở trang trên trình duyệt để thử menu và bố cục.
 
-### Bước 6: Đẩy mã nguồn lên GitHub
+Mỗi mục menu là một <li> chứa một <a>; không đặt nhiều link trong cùng một <li>. CSS đặt trong styles.css; không dùng style inline. Các liên kết nội bộ được trỏ tới ID có thật trên trang. Phần sản phẩm, tuyển dụng và liên hệ là nội dung minh họa, chưa phải thông tin doanh nghiệp chính thức.
+3. Giải thích vấn đáp
+Tại sao chọn <ul> thay vì <ol>? Menu chỉ là tập hợp các liên kết, thứ tự không quyết định ý nghĩa. <ol> phù hợp khi thứ tự là dữ kiện quan trọng, ví dụ các bước cần thực hiện tuần tự.
 
-Sau khi tạo repository trống trên GitHub và lấy URL chính xác:
+Tại sao <nav> bọc ngoài <ul>? <nav> cung cấp landmark điều hướng cho công nghệ hỗ trợ; <ul> biểu thị các mục có quan hệ danh sách. Không phải tất cả nhóm liên kết đều nhất thiết đặt trong <nav>, chỉ các khu vực điều hướng quan trọng.
 
-```bash
-git remote add origin https://github.com/<username>/<repository>.git
-git push -u origin main
-git push -u origin feature/nav-bar
-git push -u origin feature/semantic-content
-```
+Vì sao tạo nhánh thứ hai từ main? Hai nhánh cùng bắt đầu từ commit 128e2461d. Nếu tạo nhánh semantic trong lúc đang đứng ở nhánh menu, nhánh mới sẽ kế thừa cả commit menu, không còn độc lập.
 
-Nếu repository đã có `origin`, hãy kiểm tra bằng `git remote -v` thay vì thêm lại. Hai nhánh tính năng cần được đẩy lên GitHub để giảng viên có thể xem lịch sử của chúng.
+git merge hoạt động như thế nào? Khi có lịch sử phân nhánh, Git thường thực hiện three-way merge: tìm merge-base (tổ tiên chung), so sánh với hai đầu nhánh và kết hợp thay đổi. --no-ff yêu cầu tạo merge commit ngay cả khi có thể fast-forward; đây không phải một lệnh Git khác bí mật được chạy ngầm.
 
-## 5. Sơ đồ phân nhánh dự kiến
+Nếu hai nhánh sửa cùng dòng? Chạy git status, mở file bị đánh dấu conflict; giữ nội dung mong muốn và xóa <<<<<<<, =======, >>>>>>>. Kiểm tra HTML, chạy git add index.html và git commit để hoàn tất merge. Có thể kiểm tra tổ tiên chung bằng git merge-base main feature/nav-bar (thời điểm trước merge) hoặc dùng commit SHA cụ thể trong lịch sử.
 
-```mermaid
-flowchart TD
-    A[main: commit Legacy Code] --> B[feature/nav-bar: sửa menu]
-    A --> C[feature/semantic-content: sửa nội dung]
-    B --> D[main: merge menu]
-    D --> E[main: merge semantic content]
-    C --> E
-```
-
-> Đây là sơ đồ **quy trình dự kiến**, không phải bằng chứng về các commit đã thực hiện. Dùng `git log --oneline --graph --all --decorate` để xem lịch sử thực tế.
-
-## 6. Tiêu chí tự kiểm tra
-
-- [ ] `main` có commit ban đầu chứa đúng Legacy Code.
-- [ ] `feature/nav-bar` chỉ tập trung vào menu.
-- [ ] `feature/semantic-content` được tạo từ `main` gốc và tập trung vào cấu trúc nội dung.
-- [ ] Menu có cấu trúc `<nav>` → `<ul>` → `<li>` → `<a>`.
-- [ ] Dùng `<header>`, `<main>`, `<section>`, `<article>`, `<footer>` đúng ngữ nghĩa.
-- [ ] Hai nhánh tính năng đã được merge vào `main`.
-- [ ] Không còn dấu merge conflict trong `index.html`.
-- [ ] `git log --graph` thể hiện lịch sử phân nhánh và merge.
-- [ ] Đã push `main` và hai nhánh tính năng lên GitHub.
-- [ ] Có file `ai_prompt_log.md` ghi lại **các prompt thực tế** và lý do sử dụng.
-
-## 7. Giải thích một số quyết định thiết kế
-
-**Vì sao dùng `<ul>` thay vì `<ol>` cho menu?** Menu là tập hợp liên kết không yêu cầu thứ tự đánh số. `<ul>` phù hợp hơn; `<ol>` chỉ dùng khi thứ tự mang ý nghĩa.
-
-**Vì sao bọc menu bằng `<nav>`?** `<nav>` xác định vùng liên kết điều hướng quan trọng, giúp mô tả ý nghĩa cấu trúc trang cho trình duyệt và công nghệ hỗ trợ.
-
-**Vì sao phải quay về `main` trước khi tạo nhánh thứ hai?** Để `feature/semantic-content` xuất phát từ commit chung, không vô tình kế thừa các commit menu từ `feature/nav-bar`.
-
-**Merge hoạt động ra sao?** Git tìm điểm chung trong lịch sử để kết hợp thay đổi. Với `--no-ff`, Git tạo merge commit để thể hiện việc tích hợp nhánh. Nếu hai phía có thay đổi không thể tự hòa giải, người phát triển phải giải quyết conflict.
-
-## 8. Hồ sơ nộp bài
-
-- **GitHub Repository:** `https://github.com/<username>/<repository>` *(cập nhật link thật)*
-- **`index.html`:** Sản phẩm HTML cuối cùng trên nhánh `main`.
-- **`ai_prompt_log.md`:** Những prompt **đã thực sự dùng** khi trao đổi với AI, kèm lý do hỏi và kiến thức rút ra.
-- **`README.md`:** Mô tả mục tiêu, hướng triển khai, quy trình Git và tiêu chí kiểm tra (file này).
-
-**Trạng thái:** Tài liệu hướng dẫn triển khai. Các ô kiểm và link GitHub cần được cập nhật sau khi bạn thực hành xong.
+Nếu đang làm dở phải sửa gấp ở main? Có thể dùng git stash push -m "WIP nav", chuyển nhánh git switch main, sửa/commit, quay lại nhánh tính năng rồi git stash pop. Nếu thay đổi dở có giá trị lâu dài, tạo commit WIP trên nhánh riêng cũng là lựa chọn.
+4. Kiểm thử và hồ sơ nộp
+- [x] Đã xác minh 3 nhánh trên GitHub ngày 12/11/2026.
+- [x] Đã xác minh 2 merge commit thực tế với 2 parent.
+- [x] Có commit gốc chứa Legacy Code.
+- [x ] Sau khi cập nhật, kiểm tra index.html trên main có đầy đủ HTML semantic.
+- [ x] Chụp ảnh git log --all --oneline --graph --decorate và đưa vào repository.
+- [x ] Bổ sung các prompt thực tế trong ai_prompt_log.md nếu có lịch sử chat trước đây.
+- [ x] Mở trình duyệt kiểm tra giao diện và menu sau khi cập nhật.
+Hồ sơ: Repository · index.html · styles.css · ai_prompt_log.md · README này.
